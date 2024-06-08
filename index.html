@@ -79,13 +79,17 @@
         .container {
             max-width: 800px;
             width: 100%;
-            display: none;
-            flex-wrap: wrap;
-            gap: 10px;
             border: 1px solid #ddd;
             padding: 20px;
             border-radius: 8px;
             background-color: #fff;
+            display: none;
+        }
+
+        .settings {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         .checkbox-item {
@@ -111,8 +115,8 @@
         <button onclick="generateRandomString()">Generate</button>
         <button onclick="copyResult()">Copy Result</button>
         <button id="settingsBtn" onclick="toggleSettings()">Settings</button>
-        <div class="container" id="settingsContainer">
-            <div id="checkbox-container"></div>
+        <div class="container" id="settings-container">
+            <div class="settings" id="checkbox-container"></div>
         </div>
     </div>
     <script>
@@ -181,7 +185,7 @@
         }
 
         function toggleSettings() {
-            const container = document.getElementById('settingsContainer');
+            const container = document.getElementById('settings-container');
             const settingsBtn = document.getElementById('settingsBtn');
             if (container.style.display === 'none') {
                 container.style.display = 'block';
