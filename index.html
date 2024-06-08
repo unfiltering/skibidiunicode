@@ -13,6 +13,11 @@
   button {
     margin-top: 10px;
   }
+  #unicodeContainer {
+    height: 200px; /* Set the height of the container */
+    overflow: auto; /* Enable scrolling */
+    text-align: left; /* Align checkboxes vertically */
+  }
   #randomString {
     word-wrap: break-word;
     white-space: pre-wrap;
@@ -23,7 +28,9 @@
   <h1>Random Unicode String Generator</h1>
   <label for="length">Enter length of string:</label>
   <input type="number" id="length" min="1" value="10"><br>
-  <div id="unicodeBlocks"></div><br>
+  <div id="unicodeContainer">
+    <div id="unicodeBlocks"></div><br>
+  </div>
   <label for="webhookUrl">Discord Webhook URL:</label>
   <input type="text" id="webhookUrl"><br>
   <button onclick="generateString()">Generate String</button>
