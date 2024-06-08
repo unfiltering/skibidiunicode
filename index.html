@@ -99,15 +99,15 @@
     <div class="controls">
         <div id="output" class="output"></div>
 
-        <button onclick="generateRandomString()">Generate</button>
-
         <div class="input-group">
             <label for="length">Length of the string:</label>
             <input type="number" id="length" min="1" value="10">
         </div>
-    </div>
 
-    <div class="container" id="checkbox-container"></div>
+        <div class="container" id="checkbox-container"></div>
+
+        <button onclick="generateRandomString()">Generate</button>
+    </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -119,7 +119,7 @@
                         const item = document.createElement('div');
                         item.className = 'checkbox-item';
                         item.innerHTML = `
-                            <input type="checkbox" id="${block.name}" value="${block.range.join('-')}">
+                            <input type="checkbox" id="${block.name}" value="${block.range.join('-')}" checked>
                             <label for="${block.name}">${block.name}</label>
                         `;
                         container.appendChild(item);
