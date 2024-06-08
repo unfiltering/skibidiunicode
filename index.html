@@ -94,21 +94,17 @@
     </style>
 </head>
 <body>
-    <h1>Random Unicode String Generator</h1>
-
+    <h1>skibidi unicode;</h1>
+    <p>a random unicode string generator.</p>
     <div class="controls">
         <div id="output" class="output"></div>
-
         <div class="input-group">
             <label for="length">Length of the string:</label>
             <input type="number" id="length" min="1" value="10">
         </div>
-
-        <div class="container" id="checkbox-container"></div>
-
         <button onclick="generateRandomString()">Generate</button>
+        <div class="container" id="checkbox-container"></div>
     </div>
-
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             fetch('skibidiblocks.json')
