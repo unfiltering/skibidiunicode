@@ -64,21 +64,28 @@
     <div id="output" class="output"></div>
 
     <script>
+        // Example Unicode block data
+        const unicodeBlocks = [
+            { name: "Basic Latin", range: [0x0020, 0x007F] },
+            { name: "Latin-1 Supplement", range: [0x0080, 0x00FF] },
+            { name: "Greek and Coptic", range: [0x0370, 0x03FF] },
+            { name: "Cyrillic", range: [0x0400, 0x04FF] },
+            { name: "Armenian", range: [0x0530, 0x058F] },
+            { name: "Arabic", range: [0x0600, 0x06FF] },
+            // Add more blocks as needed
+        ];
+
         document.addEventListener('DOMContentLoaded', () => {
-            fetch('skibidiblocks.json')
-                .then(response => response.json())
-                .then(data => {
-                    const container = document.getElementById('checkbox-container');
-                    data.forEach(block => {
-                        const item = document.createElement('div');
-                        item.className = 'checkbox-item';
-                        item.innerHTML = `
-                            <input type="checkbox" id="${block.name}" value="${block.range.join('-')}">
-                            <label for="${block.name}">${block.name}</label>
-                        `;
-                        container.appendChild(item);
-                    });
-                });
+            const container = document.getElementById('checkbox-container');
+            unicodeBlocks.forEach(block => {
+                const item = document.createElement('div');
+                item.className = 'checkbox-item';
+                item.innerHTML = `
+                    <input type="checkbox" id="${block.name}" value="${block.range.join('-')}">
+                    <label for="${block.name}">${block.name}</label>
+                `;
+                container.appendChild(item);
+            });
         });
 
         function generateRandomString() {
@@ -97,17 +104,14 @@
                 selectedRanges.push(range);
             });
 
-            const apiUrl = `https://symbl.cc/en/tools/generator/?length=${length}&ranges=${selectedRanges.map(range => range.join('-')).join(',')}`;
+            let randomString = '';
+            for (let i = 0; i < length; i++) {
+                const range = selectedRanges[Math.floor(Math.random() * selectedRanges.length)];
+                const codePoint = Math.floor(Math.random() * (range[1] - range[0] + 1)) + range[0];
+                randomString += String.fromCodePoint(codePoint);
+            }
 
-            fetch(apiUrl)
-                .then(response => response.text())
-                .then(randomString => {
-                    output.textContent = randomString;
-                })
-                .catch(error => {
-                    console.error('Error fetching random string:', error);
-                    output.textContent = 'An error occurred while generating the string.';
-                });
+            output.textContent = randomString;
         }
     </script>
 </body>
