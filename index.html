@@ -86,7 +86,7 @@
             padding: 20px;
             border-radius: 8px;
             background-color: #fff;
-            display: none; /* Hidden by default */
+            display: block; /* Show by default */
         }
 
         .checkbox-item {
@@ -97,6 +97,9 @@
 
         .checkbox-item input {
             margin-right: 10px;
+        }
+        .settings-container {
+            display: none; /* Hidden by default */
         }
     </style>
 </head>
@@ -111,14 +114,14 @@
         </div>
         <button onclick="generateRandomString()">Generate</button>
         <button id="settingsBtn" onclick="toggleSettings()">Settings</button>
-        <div class="container" id="settings-container">
+        <div class="container" id="checkbox-container">
+            <!-- Unicode blocks checkboxes will be appended here dynamically -->
+        </div>
+        <div class="settings-container" id="settings-container">
             <div class="input-group">
                 <input type="checkbox" id="copyResultCheckbox" checked>
                 <label for="copyResultCheckbox">Copy Result</label>
             </div>
-        </div>
-        <div class="container" id="checkbox-container">
-            <!-- Unicode blocks checkboxes will be appended here dynamically -->
         </div>
     </div>
     <script>
