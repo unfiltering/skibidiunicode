@@ -107,7 +107,7 @@
     let result = '';
     const ranges = [];
     selectedBlocks.forEach(block => {
-      const blockInfo = unicodeBlocks[block.id];
+      const blockInfo = unicodeBlocks[block];
       ranges.push([blockInfo.min, blockInfo.max]);
     });
 
