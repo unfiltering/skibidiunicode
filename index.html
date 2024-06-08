@@ -73,7 +73,7 @@
                         const item = document.createElement('div');
                         item.className = 'checkbox-item';
                         item.innerHTML = `
-                            <input type="checkbox" id="${block.name}" value="${block.name}">
+                            <input type="checkbox" id="${block.name}" value="${block.range.join('-')}">
                             <label for="${block.name}">${block.name}</label>
                         `;
                         container.appendChild(item);
@@ -85,44 +85,29 @@
             const length = parseInt(document.getElementById('length').value, 10);
             const checkboxes = document.querySelectorAll('input[type=checkbox]:checked');
             const output = document.getElementById('output');
-            
+
             if (checkboxes.length === 0) {
                 output.textContent = 'Please select at least one Unicode block.';
                 return;
             }
 
-            fetch('skibidiblocks.json')
-                .then(response => response.json())
-                .then(data => {
-                    const selectedRanges = [];
-                    checkboxes.forEach(checkbox => {
-                        const block = data.find(item => item.name === checkbox.value);
-                        if (block) {
-                            selectedRanges.push(block.range);
-                        }
-                    });
+            const selectedRanges = [];
+            checkboxes.forEach(checkbox => {
+                const range = checkbox.value.split('-').map(num => parseInt(num, 16));
+                selectedRanges.push(range);
+            });
 
-                    let randomString = '';
-                    for (let i = 0; i < length; i++) {
-                        const range = selectedRanges[Math.floor(Math.random() * selectedRanges.length)];
-                        let codePoint;
-                        do {
-                            codePoint = Math.floor(Math.random() * (range[1] - range[0] + 1)) + range[0];
-                        } while (!isValidCodePoint(codePoint));
-                        randomString += String.fromCodePoint(codePoint);
-                    }
+            const apiUrl = `https://symbl.cc/en/tools/generator/?length=${length}&ranges=${selectedRanges.map(range => range.join('-')).join(',')}`;
 
+            fetch(apiUrl)
+                .then(response => response.text())
+                .then(randomString => {
                     output.textContent = randomString;
+                })
+                .catch(error => {
+                    console.error('Error fetching random string:', error);
+                    output.textContent = 'An error occurred while generating the string.';
                 });
-        }
-
-        function isValidCodePoint(codePoint) {
-            try {
-                String.fromCodePoint(codePoint);
-                return true;
-            } catch (e) {
-                return false;
-            }
         }
     </script>
 </body>
