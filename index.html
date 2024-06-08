@@ -98,9 +98,19 @@
         .checkbox-item input {
             margin-right: 10px;
         }
+
         .settings-container {
+            max-width: 800px;
+            width: 100%;
             display: none; /* Hidden by default */
+            flex-wrap: wrap;
+            gap: 10px;
+            border: 1px solid #ddd;
+            padding: 20px;
+            border-radius: 8px;
+            background-color: #fff;
         }
+
     </style>
 </head>
 <body>
@@ -147,7 +157,7 @@
 
         function generateRandomString() {
             const length = parseInt(document.getElementById('length').value, 10);
-            const checkboxes = document.querySelectorAll('input[type=checkbox]:checked');
+            const checkboxes = document.querySelectorAll('input[type=checkbox]:checked);
             const output = document.getElementById('output');
             const copyResultCheckbox = document.getElementById('copyResultCheckbox');
 
@@ -200,12 +210,12 @@
             const settingsBtn = document.getElementById('settingsBtn');
 
             if (settingsContainer.style.display === 'none') {
-                settingsContainer.style.display = 'block';
+                settingsContainer.style.display = 'flex';
                 checkboxContainer.style.display = 'none';
                 settingsBtn.textContent = 'Hide Settings';
             } else {
                 settingsContainer.style.display = 'none';
-                checkboxContainer.style.display = 'block';
+                checkboxContainer.style.display = 'flex';
                 settingsBtn.textContent = 'Settings';
             }
         }
