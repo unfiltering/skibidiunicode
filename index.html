@@ -79,17 +79,13 @@
         .container {
             max-width: 800px;
             width: 100%;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
             border: 1px solid #ddd;
             padding: 20px;
             border-radius: 8px;
             background-color: #fff;
-            display: none;
-        }
-
-        .settings {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
         }
 
         .checkbox-item {
@@ -113,10 +109,14 @@
             <input type="number" id="length" min="1" value="10">
         </div>
         <button onclick="generateRandomString()">Generate</button>
-        <button onclick="copyResult()">Copy Result</button>
-        <button id="settingsBtn" onclick="toggleSettings()">Settings</button>
         <div class="container" id="settings-container">
-            <div class="settings" id="checkbox-container"></div>
+            <div class="input-group">
+                <input type="checkbox" id="copyResultCheckbox" checked>
+                <label for="copyResultCheckbox">Copy Result</label>
+            </div>
+        </div>
+        <div class="container" id="checkbox-container">
+            <!-- Unicode blocks checkboxes will be appended here dynamically -->
         </div>
     </div>
     <script>
@@ -144,6 +144,7 @@
             const length = parseInt(document.getElementById('length').value, 10);
             const checkboxes = document.querySelectorAll('input[type=checkbox]:checked');
             const output = document.getElementById('output');
+            const copyResultCheckbox = document.getElementById('copyResultCheckbox');
 
             if (checkboxes.length === 0) {
                 output.textContent = 'Please select at least one Unicode block.';
@@ -167,6 +168,10 @@
                     }
 
                     output.textContent = randomString;
+
+                    if (copyResultCheckbox.checked) {
+                        copyResult();
+                    }
                 })
                 .catch(error => {
                     console.error('Error fetching Unicode blocks:', error);
@@ -182,18 +187,6 @@
             tempInput.select();
             document.execCommand('copy');
             document.body.removeChild(tempInput);
-        }
-
-        function toggleSettings() {
-            const container = document.getElementById('settings-container');
-            const settingsBtn = document.getElementById('settingsBtn');
-            if (container.style.display === 'none') {
-                container.style.display = 'block';
-                settingsBtn.textContent = 'Hide Settings';
-            } else {
-                container.style.display = 'none';
-                settingsBtn.textContent = 'Settings';
-            }
         }
     </script>
 </body>
