@@ -105,12 +105,24 @@
                     let randomString = '';
                     for (let i = 0; i < length; i++) {
                         const range = selectedRanges[Math.floor(Math.random() * selectedRanges.length)];
-                        const codePoint = Math.floor(Math.random() * (range[1] - range[0] + 1)) + range[0];
+                        let codePoint;
+                        do {
+                            codePoint = Math.floor(Math.random() * (range[1] - range[0] + 1)) + range[0];
+                        } while (!isValidCodePoint(codePoint));
                         randomString += String.fromCodePoint(codePoint);
                     }
 
                     output.textContent = randomString;
                 });
+        }
+
+        function isValidCodePoint(codePoint) {
+            try {
+                String.fromCodePoint(codePoint);
+                return true;
+            } catch (e) {
+                return false;
+            }
         }
     </script>
 </body>
