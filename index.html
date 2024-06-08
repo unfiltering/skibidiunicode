@@ -86,6 +86,7 @@
             padding: 20px;
             border-radius: 8px;
             background-color: #fff;
+            display: none;
         }
 
         .checkbox-item {
@@ -109,6 +110,8 @@
             <input type="number" id="length" min="1" value="10">
         </div>
         <button onclick="generateRandomString()">Generate</button>
+        <button onclick="copyResult()">Copy Result</button>
+        <button id="settingsBtn" onclick="toggleSettings()">Settings</button>
         <div class="container" id="checkbox-container"></div>
     </div>
     <script>
@@ -164,6 +167,28 @@
                     console.error('Error fetching Unicode blocks:', error);
                     output.textContent = 'Error generating string. Please try again.';
                 });
+        }
+
+        function copyResult() {
+            const output = document.getElementById('output');
+            const tempInput = document.createElement('textarea');
+            tempInput.value = output.textContent;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+        }
+
+        function toggleSettings() {
+            const container = document.getElementById('checkbox-container');
+            const settingsBtn = document.getElementById('settingsBtn');
+            if (container.style.display === 'none') {
+                container.style.display = 'block';
+                settingsBtn.textContent = 'Hide Settings';
+            } else {
+                container.style.display = 'none';
+                settingsBtn.textContent = 'Settings';
+            }
         }
     </script>
 </body>
