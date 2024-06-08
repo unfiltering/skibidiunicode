@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Random Unicode String Generator</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    margin-top: 50px;
+  }
+  button {
+    margin-top: 10px;
+  }
+  #randomString {
+    word-wrap: break-word;
+    white-space: pre-wrap;
+  }
+</style>
+</head>
+<body>
+  <h1>Random Unicode String Generator</h1>
+  <label for="length">Enter length of string:</label>
+  <input type="number" id="length" min="1" value="10"><br>
+  <div id="unicodeBlocks"></div><br>
+  <label for="webhookUrl">Discord Webhook URL:</label>
+  <input type="text" id="webhookUrl"><br>
+  <button onclick="generateString()">Generate String</button>
+  <button onclick="copyToClipboard()">Copy to Clipboard</button>
+  <p id="randomString"></p>
+
+  <script>
+    // Fetch Unicode block data from JSON file
+    fetch('skibidiblocks.json')
+      .then(response => response.json())
+      .then(data => {
+        initializeUnicodeBlocks(data);
+      })
+      .catch(error => console.error('Error fetching Unicode block data:', error));
+
+    function initializeUnicodeBlocks(data) {
+      const unicodeBlocksContainer = document.getElementById('unicodeBlocks');
+      for (const block in data) {
+        if (data.hasOwnProperty(block)) {
+          const blockInfo = data[block];
+          const checkbox = document.createElement('input');
+          checkbox.type = 'checkbox';
+          checkbox.id = block;
+          checkbox.checked = true;
+          const label = document.createElement('label');
+          label.htmlFor = block;
+          label.textContent = blockInfo.name;
+          console.log('Loaded unicode block "' + blockInfo.name + '"');
+          unicodeBlocksContainer.appendChild(checkbox);
+          unicodeBlocksContainer.appendChild(label);
+          unicodeBlocksContainer.appendChild(document.createElement('br'));
+        }
+      }
+    }
+
+    function generateString() {
+      const length = document.getElementById('length').value;
+      if (length < 1) {
+        alert('Please enter a valid length (greater than 0).');
+        return;
+      }
+      const selectedBlocks = document.querySelectorAll('input[type=checkbox]:checked');
+      if (selectedBlocks.length === 0) {
+        alert('Please select at least one Unicode block.');
+        return;
+      }
+      const webhookUrl = document.getElementById('webhookUrl').value.trim();
+
+      const string = getRandomString(length, selectedBlocks);
+      document.getElementById('randomString').textContent = string;
+      if (webhookUrl !== "") {
+        sendToDiscord(string, webhookUrl);
+      } else {
+        console.log("No Discord Webhook URL provided. String not sent to Discord.");
+      }
+    }
+
+    function getRandomString(length, selectedBlocks) {
+      let result = '';
+      const ranges = [];
+      selectedBlocks.forEach(block => {
+        const blockInfo = unicodeBlocks[block.id];
+        ranges.push([blockInfo.min, blockInfo.max]);
+      });
+
+      for (let i = 0; i < length; i++) {
+        const [min, max] = ranges[Math.floor(Math.random() * ranges.length)];
+        const codePoint = Math.floor(Math.random() * (max - min + 1)) + min;
+        result += String.fromCodePoint(codePoint);
+      }
+
+      return result;
+    }
+
+    function copyToClipboard() {
+      const randomString = document.getElementById('randomString').textContent;
+      navigator.clipboard.writeText(randomString).then(() => {
+        alert('String copied to clipboard!');
+      }, (err) => {
+        console.error('Failed to copy text: ', err);
+      });
+    }
+
+    function sendToDiscord(string, webhookUrl) {
+      const titleLength = Math.floor(Math.random() * (15 - 6 + 1)) + 6;
+      const title = string.substr(0, titleLength);
+      const description = string.substr(titleLength);
+
+      let sum = 0;
+      for (let i = 0; i < title.length; i++) {
+        sum += title.charCodeAt(i);
+      }
+
+      const payload = {
+        embeds: [{
+          title: title,
+          description: description,
+          color: sum % 0xffffff
+        }]
+      };
+
+      fetch(webhookUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          console.log('String sent to Discord successfully');
+        })
+        .catch(error => {
+          console.error('Error sending string to Discord:', error);
+        });
+    }
+  </script>
+</body>
+</html>
