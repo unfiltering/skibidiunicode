@@ -160,17 +160,39 @@
           const item = document.createElement('div');
           item.className = 'checkbox-item';
           item.innerHTML = `
-          
-						
+        
 						<input type="checkbox" id="${block.name}" value="${block.range.join('-')}" ${isChecked(block.name)}>
 							<label for="${block.name}">${block.name}</label>
-        `;
+      `;
+          item.querySelector('input').addEventListener('change', () => {
+            saveSettings();
+          });
           container.appendChild(item);
         });
       }).catch(error => {
         console.error('Error fetching Unicode blocks:', error);
       });
     });
+
+    function saveSettings() {
+      const copyResultCheckbox = document.getElementById('copyResultCheckbox');
+      localStorage.setItem('copyResultChecked', copyResultCheckbox.checked);
+      const selectedBlocks = Array.from(document.querySelectorAll('input[type=checkbox]:checked')).map(checkbox => checkbox.id);
+      localStorage.setItem('selectedBlocks', JSON.stringify(selectedBlocks));
+    }
+
+    function loadSettings() {
+      const copyResultCheckbox = document.getElementById('copyResultCheckbox');
+      const copyResultChecked = localStorage.getItem('copyResultChecked') === 'true';
+      copyResultCheckbox.checked = copyResultChecked;
+      const selectedBlocks = JSON.parse(localStorage.getItem('selectedBlocks')) || [];
+      selectedBlocks.forEach(block => {
+        const checkbox = document.getElementById(block);
+        if (checkbox) {
+          checkbox.checked = true;
+        }
+      });
+    }
 
     function generateRandomString() {
       const length = parseInt(document.getElementById('length').value, 10);
@@ -231,12 +253,6 @@
     function isChecked(name) {
       const selectedBlocks = JSON.parse(localStorage.getItem('selectedBlocks')) || [];
       return selectedBlocks.includes(name) ? 'checked' : '';
-    }
-
-    function loadSettings() {
-      const copyResultCheckbox = document.getElementById('copyResultCheckbox');
-      const copyResultChecked = localStorage.getItem('copyResultChecked') === 'true';
-      copyResultCheckbox.checked = copyResultChecked;
     }
 
     function resetSettings() {
