@@ -220,16 +220,44 @@
       return selectedBlocks.includes(name) ? 'checked' : '';
     }
 
-    function loadSettings() {
-      const copyResultCheckbox = document.getElementById('copyResultCheckbox');
-      const copyResultChecked = localStorage.getItem('copyResultChecked') === 'true';
-      copyResultCheckbox.checked = copyResultChecked;
-    }
+function resetSettings() {
+  // Reset localStorage
+  localStorage.removeItem('selectedBlocks');
+  localStorage.removeItem('copyResultChecked');
 
-    function resetSettings() {
-      localStorage.removeItem('selectedBlocks');
-      localStorage.removeItem('copyResultChecked');
-      loadSettings();
+  // Reset HTML checkboxes
+  const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+  checkboxes.forEach(checkbox => {
+    checkbox.checked = true; // All checkboxes checked by default
+  });
+
+  // Reset "Copy Result" checkbox
+  const copyResultCheckbox = document.getElementById('copyResultCheckbox');
+  copyResultCheckbox.checked = false; // "Copy Result" unchecked by default
+
+  // Reload settings
+  loadSettings();
+}
+
+function loadSettings() {
+  const copyResultCheckbox = document.getElementById('copyResultCheckbox');
+  const copyResultChecked = localStorage.getItem('copyResultChecked') === 'true';
+  copyResultCheckbox.checked = copyResultChecked;
+
+  // Check all Unicode blocks by default
+  const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+  checkboxes.forEach(checkbox => {
+    checkbox.checked = true;
+  });
+
+  // If selected blocks are stored in localStorage, uncheck those that are not stored
+  const selectedBlocks = JSON.parse(localStorage.getItem('selectedBlocks')) || [];
+  checkboxes.forEach(checkbox => {
+    if (!selectedBlocks.includes(checkbox.id)) {
+      checkbox.checked = false;
     }
+  });
+}
+
   </script>
 </html>
