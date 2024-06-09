@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8">
@@ -135,82 +136,100 @@
         <input type="checkbox" id="copyResultCheckbox">
         <label for="copyResultCheckbox">Copy Result</label>
       </div>
+      <button onclick="resetSettings()">Reset Settings</button>
     </div>
-    </div>
-    <script>
-      document.addEventListener('DOMContentLoaded', () => {
-        fetch('https://raw.githubusercontent.com/unfiltering/skibidiunicode/main/skibidiblocks.json').then(response => response.json()).then(data => {
-          const container = document.getElementById('checkbox-container');
-          data.forEach(block => {
-            const item = document.createElement('div');
-            item.className = 'checkbox-item';
-            item.innerHTML = `
-                            
-						<input type="checkbox" id="${block.name}" value="${block.range.join('-')}" checked>
-							<label for="${block.name}">${block.name}</label>
-                        `;
-            container.appendChild(item);
-          });
-        }).catch(error => {
-          console.error('Error fetching Unicode blocks:', error);
-        });
-      });
-
-      function generateRandomString() {
-        const length = parseInt(document.getElementById('length').value, 10);
-        const checkboxes = document.querySelectorAll('input[type=checkbox]:checked');
-        const output = document.getElementById('output');
-        const copyResultCheckbox = document.getElementById('copyResultCheckbox');
-        if (checkboxes.length === 0) {
-          output.textContent = 'Please select at least one Unicode block.';
-          return;
-        }
-        fetch('https://raw.githubusercontent.com/unfiltering/skibidiunicode/main/skibidiblocks.json').then(response => response.json()).then(data => {
-          const selectedRanges = [];
-          checkboxes.forEach(checkbox => {
-            const range = checkbox.value.split('-').map(num => parseInt(num, 16));
-            selectedRanges.push(range);
-          });
-          let randomString = '';
-          for (let i = 0; i < length; i++) {
-            const range = selectedRanges[Math.floor(Math.random() * selectedRanges.length)];
-            const codePoint = Math.floor(Math.random() * (range[1] - range[0] + 1)) + range[0];
-            randomString += String.fromCodePoint(codePoint);
-          }
-          output.textContent = randomString;
-          if (copyResultCheckbox.checked) {
-            copyResult();
-          }
-        }).catch(error => {
-          console.error('Error fetching Unicode blocks:', error);
-          output.textContent = 'Error generating string. Please try again.';
-        });
-      }
-
-      function copyResult() {
-        const output = document.getElementById('output');
-        const tempInput = document.createElement('textarea');
-        tempInput.value = output.textContent;
-        document.body.appendChild(tempInput);
-        tempInput.select();
-        document.execCommand('copy');
-        document.body.removeChild(tempInput);
-      }
-
-      function toggleSettings() {
-        const settingsContainer = document.getElementById('settings-container');
-        const checkboxContainer = document.getElementById('checkbox-container');
-        const settingsBtn = document.getElementById('settingsBtn');
-        if (settingsContainer.style.display === 'none') {
-          settingsContainer.style.display = 'flex';
-          checkboxContainer.style.display = 'none';
-          settingsBtn.textContent = 'Hide Settings';
-        } else {
-          settingsContainer.style.display = 'none';
-          checkboxContainer.style.display = 'flex';
-          settingsBtn.textContent = 'Settings';
-        }
-      }
-    </script>
   </body>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      loadSettings();
+      fetch('https://raw.githubusercontent.com/unfiltering/skibidiunicode/main/skibidiblocks.json').then(response => response.json()).then(data => {
+        const container = document.getElementById('checkbox-container');
+        data.forEach(block => {
+          const item = document.createElement('div');
+          item.className = 'checkbox-item';
+          item.innerHTML = `
+          
+						<input type="checkbox" id="${block.name}" value="${block.range.join('-')}" ${isChecked(block.name)}>
+							<label for="${block.name}">${block.name}</label>
+        `;
+          container.appendChild(item);
+        });
+      }).catch(error => {
+        console.error('Error fetching Unicode blocks:', error);
+      });
+    });
+
+    function generateRandomString() {
+      const length = parseInt(document.getElementById('length').value, 10);
+      const checkboxes = document.querySelectorAll('input[type=checkbox]:checked');
+      const output = document.getElementById('output');
+      const copyResultCheckbox = document.getElementById('copyResultCheckbox');
+      if (checkboxes.length === 0) {
+        output.textContent = 'Please select at least one Unicode block.';
+        return;
+      }
+      const selectedBlocks = [];
+      checkboxes.forEach(checkbox => {
+        selectedBlocks.push(checkbox.id);
+      });
+      localStorage.setItem('selectedBlocks', JSON.stringify(selectedBlocks));
+      const selectedRanges = [];
+      checkboxes.forEach(checkbox => {
+        const range = checkbox.value.split('-').map(num => parseInt(num, 16));
+        selectedRanges.push(range);
+      });
+      let randomString = '';
+      for (let i = 0; i < length; i++) {
+        const range = selectedRanges[Math.floor(Math.random() * selectedRanges.length)];
+        const codePoint = Math.floor(Math.random() * (range[1] - range[0] + 1)) + range[0];
+        randomString += String.fromCodePoint(codePoint);
+      }
+      output.textContent = randomString;
+      if (copyResultCheckbox.checked) {
+        copyResult();
+      }
+    }
+
+    function copyResult() {
+      const output = document.getElementById('output');
+      const tempInput = document.createElement('textarea');
+      tempInput.value = output.textContent;
+      document.body.appendChild(tempInput);
+      tempInput.select();
+      document.execCommand('copy');
+      document.body.removeChild(tempInput);
+    }
+
+    function toggleSettings() {
+      const settingsContainer = document.getElementById('settings-container');
+      const checkboxContainer = document.getElementById('checkbox-container');
+      const settingsBtn = document.getElementById('settingsBtn');
+      if (settingsContainer.style.display === 'none') {
+        settingsContainer.style.display = 'flex';
+        checkboxContainer.style.display = 'none';
+        settingsBtn.textContent = 'Hide Settings';
+      } else {
+        settingsContainer.style.display = 'none';
+        checkboxContainer.style.display = 'flex';
+        settingsBtn.textContent = 'Settings';
+      }
+    }
+
+    function isChecked(name) {
+      const selectedBlocks = JSON.parse(localStorage.getItem('selectedBlocks')) || [];
+      return selectedBlocks.includes(name) ? 'checked' : '';
+    }
+
+    function loadSettings() {
+      const copyResultCheckbox = document.getElementById('copyResultCheckbox');
+      const copyResultChecked = localStorage.getItem('copyResultChecked') === 'true';
+      copyResultCheckbox.checked = copyResultChecked;
+    }
+
+    function resetSettings() {
+      localStorage.removeItem('selectedBlocks');
+      localStorage.removeItem('copyResultChecked');
+      loadSettings();
+    }
+  </script>
 </html>
