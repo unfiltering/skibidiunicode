@@ -106,7 +106,9 @@
         width: 100%;
         display: none;
         /* Hidden by default */
-        flex-wrap: wrap;
+        flex-direction: column;
+        align-items: center;
+        /* Center horizontally */
         gap: 10px;
         border: 1px solid #ddd;
         padding: 20px;
@@ -138,11 +140,15 @@
       </div>
     </div>
     <div class="settings-container" id="settings-container" style="display: none;">
-      <div class="input-group">
-        <input type="checkbox" id="copyResultCheckbox">
-        <label for="copyResultCheckbox">Copy Result</label>
+      <div class="settings-checkboxes">
+        <div class="input-group">
+          <input type="checkbox" id="copyResultCheckbox">
+          <label for="copyResultCheckbox">Copy Result</label>
+        </div>
       </div>
-      <button onclick="resetSettings()">Reset Settings</button>
+      <div class="settings-buttons">
+        <button onclick="resetSettings()">Reset Settings</button>
+      </div>
     </div>
   </body>
   <script>
