@@ -147,6 +147,8 @@
         </div>
       </div>
       <div class="settings-buttons">
+        <button id="exportBtn">Export</button>
+        <button id="loadBtn">Load</button>
         <button onclick="resetSettings()">Reset Settings</button>
       </div>
     </div>
@@ -160,8 +162,7 @@
           const item = document.createElement('div');
           item.className = 'checkbox-item';
           item.innerHTML = `
-						
-						
+          
 						<input type="checkbox" id="${block.name}" value="${block.range.join('-')}" ${isChecked(block.name)}>
 							<label for="${block.name}">${block.name}</label>`;
           item.querySelector('input').addEventListener('change', () => {
@@ -175,7 +176,53 @@
       document.getElementById('copyResultCheckbox').addEventListener('change', () => {
         saveSettings();
       });
+      // Export Button Click Handler
+      document.getElementById('exportBtn').addEventListener('click', () => {
+        exportSettings();
+      });
+      // Load Button Click Handler
+      document.getElementById('loadBtn').addEventListener('click', () => {
+        loadFromFile();
+      });
     });
+
+    function exportSettings() {
+      const selectedBlocks = JSON.parse(localStorage.getItem('selectedBlocks')) || [];
+      const data = JSON.stringify(selectedBlocks);
+      const base64Data = btoa(data);
+      const blob = new Blob([base64Data], {
+        type: 'text/plain'
+      });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'save.skuni';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    function loadFromFile() {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = '.skuni';
+      input.addEventListener('change', () => {
+        const file = input.files[0];
+        const reader = new FileReader();
+        reader.onload = () => {
+          const content = reader.result;
+          if (content) {
+            const decodedData = atob(content);
+            const selectedBlocks = JSON.parse(decodedData);
+            localStorage.setItem('selectedBlocks', JSON.stringify(selectedBlocks));
+            loadSettings(); // Refresh settings UI
+          }
+        };
+        reader.readAsText(file);
+      });
+      input.click();
+    }
 
     function toggleSettings() {
       const settingsContainer = document.getElementById('settings-container');
