@@ -114,6 +114,7 @@
         background-color: #fff;
       }
     </style>
+    <style type="text/css" id="operaUserStyle"></style>
   </head>
   <body>
     <h1>skibidi unicode;</h1>
@@ -124,8 +125,14 @@
         <label for="length">Length of the string:</label>
         <input type="number" id="length" min="1" value="10">
       </div>
-      <button onclick="generateRandomString()">Generate</button>
-      <button id="settingsBtn" onclick="toggleSettings()">Settings</button>
+      <div class="generation">
+        <button onclick="generateRandomString()">Generate</button>
+        <button id="settingsBtn" onclick="toggleSettings()">Settings</button>
+      </div>
+      <div class="selectionOptions">
+        <button onclick="selectAll()">Select All</button>
+        <button onclick="deselectAll()">Deselect All</button>
+      </div>
       <div class="container" id="checkbox-container" style="display: flex;">
         <!-- Unicode blocks checkboxes will be appended here dynamically -->
       </div>
@@ -137,136 +144,113 @@
       </div>
       <button onclick="resetSettings()">Reset Settings</button>
     </div>
-    <script>
-      document.addEventListener('DOMContentLoaded', () => {
-        loadSettings();
-        fetch('https://raw.githubusercontent.com/unfiltering/skibidiunicode/main/skibidiblocks.json').then(response => response.json()).then(data => {
-          const container = document.getElementById('checkbox-container');
-          data.forEach(block => {
-            const item = document.createElement('div');
-            item.className = 'checkbox-item';
-            item.innerHTML = `
-                    
-							<input type="checkbox" id="${block.name}" value="${block.range.join('-')}" ${isChecked(block.name)}>
-								<label for="${block.name}">${block.name}</label>
-                `;
-            container.appendChild(item);
-            // Add event listener to each checkbox to save state when checked or unchecked
-            const checkbox = item.querySelector('input[type="checkbox"]');
-            checkbox.addEventListener('change', () => {
-              saveCheckboxState(checkbox.id, checkbox.checked);
-            });
-          });
-        }).catch(error => {
-          console.error('Error fetching Unicode blocks:', error);
-        });
-      });
-
-      function generateRandomString() {
-        const length = parseInt(document.getElementById('length').value, 10);
-        const checkboxes = document.querySelectorAll('input[type=checkbox]:checked');
-        const output = document.getElementById('output');
-        const copyResultCheckbox = document.getElementById('copyResultCheckbox');
-        if (checkboxes.length === 0) {
-          output.textContent = 'Please select at least one Unicode block.';
-          return;
-        }
-        const selectedBlocks = [];
-        checkboxes.forEach(checkbox => {
-          selectedBlocks.push(checkbox.id);
-        });
-        localStorage.setItem('selectedBlocks', JSON.stringify(selectedBlocks));
-        const selectedRanges = [];
-        checkboxes.forEach(checkbox => {
-          const range = checkbox.value.split('-').map(num => parseInt(num, 16));
-          selectedRanges.push(range);
-        });
-        let randomString = '';
-        for (let i = 0; i < length; i++) {
-          const range = selectedRanges[Math.floor(Math.random() * selectedRanges.length)];
-          const codePoint = Math.floor(Math.random() * (range[1] - range[0] + 1)) + range[0];
-          randomString += String.fromCodePoint(codePoint);
-        }
-        output.textContent = randomString;
-        if (copyResultCheckbox.checked) {
-          copyResult();
-        }
-      }
-      // Function to save checkbox state to localStorage
-      function saveCheckboxState(checkboxId, isChecked) {
-        const selectedBlocks = JSON.parse(localStorage.getItem('selectedBlocks')) || [];
-        if (isChecked && !selectedBlocks.includes(checkboxId)) {
-          selectedBlocks.push(checkboxId);
-        } else if (!isChecked && selectedBlocks.includes(checkboxId)) {
-          const index = selectedBlocks.indexOf(checkboxId);
-          selectedBlocks.splice(index, 1);
-        }
-        localStorage.setItem('selectedBlocks', JSON.stringify(selectedBlocks));
-      }
-      // Function to load checkbox states from localStorage
-      function loadSettings() {
-        const copyResultCheckbox = document.getElementById('copyResultCheckbox');
-        const copyResultChecked = localStorage.getItem('copyResultChecked') === 'true';
-        copyResultCheckbox.checked = copyResultChecked;
-        // Check all Unicode blocks by default
-        const checkboxes = document.querySelectorAll('input[type="checkbox"]');
-        checkboxes.forEach(checkbox => {
-          checkbox.checked = true;
-        });
-        // If selected blocks are stored in localStorage, uncheck those that are not stored
-        const selectedBlocks = JSON.parse(localStorage.getItem('selectedBlocks')) || [];
-        checkboxes.forEach(checkbox => {
-          if (!selectedBlocks.includes(checkbox.id)) {
-            checkbox.checked = false;
-          }
-        });
-      }
-
-      function resetSettings() {
-        // Reset localStorage
-        localStorage.removeItem('selectedBlocks');
-        localStorage.removeItem('copyResultChecked');
-        // Reset HTML checkboxes
-        const checkboxes = document.querySelectorAll('input[type="checkbox"]');
-        checkboxes.forEach(checkbox => {
-          checkbox.checked = true; // All checkboxes checked by default
-        });
-        // Reset "Copy Result" checkbox
-        const copyResultCheckbox = document.getElementById('copyResultCheckbox');
-        copyResultCheckbox.checked = false; // "Copy Result" unchecked by default
-        // Reload settings
-        loadSettings();
-      }
-
-      function isChecked(name) {
-        const selectedBlocks = JSON.parse(localStorage.getItem('selectedBlocks')) || [];
-        return selectedBlocks.includes(name) ? 'checked' : '';
-      }
-
-      function copyResult() {
-        const output = document.getElementById('output');
-        const tempInput = document.createElement('textarea');
-        tempInput.value = output.textContent;
-        document.body.appendChild(tempInput);
-        tempInput.select();
-        document.execCommand('copy');
-        document.body.removeChild(tempInput);
-      }
-
-      function toggleSettings() {
-        const settingsContainer = document.getElementById('settings-container');
-        const checkboxContainer = document.getElementById('checkbox-container');
-        const settingsBtn = document.getElementById('settingsBtn');
-        if (settingsContainer.style.display === 'none') {
-          settingsContainer.style.display = 'flex';
-          checkboxContainer.style.display = 'none';
-          settingsBtn.textContent = 'Hide Settings';
-        } else {
-          settingsContainer.style.display = 'none';
-          checkboxContainer.style.display = 'flex';
-          settingsBtn.textContent = 'Settings';
-        }
-      }
-    </script>
   </body>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      loadSettings();
+      fetch('https://raw.githubusercontent.com/unfiltering/skibidiunicode/main/skibidiblocks.json').then(response => response.json()).then(data => {
+        const container = document.getElementById('checkbox-container');
+        data.forEach(block => {
+          const item = document.createElement('div');
+          item.className = 'checkbox-item';
+          item.innerHTML = `
+          
+						
+						<input type="checkbox" id="${block.name}" value="${block.range.join('-')}" ${isChecked(block.name)}>
+							<label for="${block.name}">${block.name}</label>
+        `;
+          container.appendChild(item);
+        });
+      }).catch(error => {
+        console.error('Error fetching Unicode blocks:', error);
+      });
+    });
+
+    function generateRandomString() {
+      const length = parseInt(document.getElementById('length').value, 10);
+      const checkboxes = document.querySelectorAll('input[type=checkbox]:checked');
+      const output = document.getElementById('output');
+      const copyResultCheckbox = document.getElementById('copyResultCheckbox');
+      if (checkboxes.length === 0) {
+        output.textContent = 'Please select at least one Unicode block.';
+        return;
+      }
+      const selectedBlocks = [];
+      checkboxes.forEach(checkbox => {
+        selectedBlocks.push(checkbox.id);
+      });
+      localStorage.setItem('selectedBlocks', JSON.stringify(selectedBlocks));
+      const selectedRanges = [];
+      checkboxes.forEach(checkbox => {
+        const range = checkbox.value.split('-').map(num => parseInt(num, 16));
+        selectedRanges.push(range);
+      });
+      let randomString = '';
+      for (let i = 0; i < length; i++) {
+        const range = selectedRanges[Math.floor(Math.random() * selectedRanges.length)];
+        const codePoint = Math.floor(Math.random() * (range[1] - range[0] + 1)) + range[0];
+        randomString += String.fromCodePoint(codePoint);
+      }
+      output.textContent = randomString;
+      if (copyResultCheckbox.checked) {
+        copyResult();
+      }
+    }
+
+    function copyResult() {
+      const output = document.getElementById('output');
+      const tempInput = document.createElement('textarea');
+      tempInput.value = output.textContent;
+      document.body.appendChild(tempInput);
+      tempInput.select();
+      document.execCommand('copy');
+      document.body.removeChild(tempInput);
+    }
+
+    function toggleSettings() {
+      const settingsContainer = document.getElementById('settings-container');
+      const checkboxContainer = document.getElementById('checkbox-container');
+      const settingsBtn = document.getElementById('settingsBtn');
+      if (settingsContainer.style.display === 'none') {
+        settingsContainer.style.display = 'flex';
+        checkboxContainer.style.display = 'none';
+        settingsBtn.textContent = 'Hide Settings';
+      } else {
+        settingsContainer.style.display = 'none';
+        checkboxContainer.style.display = 'flex';
+        settingsBtn.textContent = 'Settings';
+      }
+    }
+
+    function isChecked(name) {
+      const selectedBlocks = JSON.parse(localStorage.getItem('selectedBlocks')) || [];
+      return selectedBlocks.includes(name) ? 'checked' : '';
+    }
+
+    function loadSettings() {
+      const copyResultCheckbox = document.getElementById('copyResultCheckbox');
+      const copyResultChecked = localStorage.getItem('copyResultChecked') === 'true';
+      copyResultCheckbox.checked = copyResultChecked;
+    }
+
+    function resetSettings() {
+      localStorage.removeItem('selectedBlocks');
+      localStorage.removeItem('copyResultChecked');
+      loadSettings();
+    }
+
+    function selectAll() {
+      const checkboxes = document.querySelectorAll('input[type=checkbox]');
+      checkboxes.forEach(checkbox => {
+        checkbox.checked = true;
+      });
+    }
+
+    function deselectAll() {
+      const checkboxes = document.querySelectorAll('input[type=checkbox]');
+      checkboxes.forEach(checkbox => {
+        checkbox.checked = false;
+      });
+    }
+  </script>
 </html>
