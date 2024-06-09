@@ -161,6 +161,7 @@
           item.className = 'checkbox-item';
           item.innerHTML = `
 						
+						
 						<input type="checkbox" id="${block.name}" value="${block.range.join('-')}" ${isChecked(block.name)}>
 							<label for="${block.name}">${block.name}</label>`;
           item.querySelector('input').addEventListener('change', () => {
@@ -241,13 +242,15 @@
         selectedRanges.push(range);
       });
       let randomString = '';
+      console.log("Selected Ranges: " + selectedRanges)
       for (let i = 0; i < length; i++) {
         const range = selectedRanges[Math.floor(Math.random() * selectedRanges.length)];
         const codePoint = Math.floor(Math.random() * (range[1] - range[0] + 1)) + range[0];
-	const string = String.fromCodePoint(codePoint);
-	randomString += string
-	console.log(selectedRanges+"\n"+range+"\n"+codePoint)
+        const string = String.fromCodePoint(codePoint);
+        randomString += string
+        console.log("Unicode Range:" + range + "\nCodepoint: " + codePoint + "\nCharacter: " + string);
       }
+      console.log("Result: " + randomString)
       output.textContent = randomString;
       if (copyResultCheckbox.checked) {
         copyResult();
