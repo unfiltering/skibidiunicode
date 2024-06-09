@@ -155,24 +155,51 @@
     document.addEventListener('DOMContentLoaded', () => {
       loadSettings();
       fetch('https://raw.githubusercontent.com/unfiltering/skibidiunicode/main/skibidiblocks.json').then(response => response.json()).then(data => {
-        const container = document.getElementById('checkbox-container');
+        const checkcontainer = document.getElementById('checkbox-container');
         data.forEach(block => {
           const item = document.createElement('div');
           item.className = 'checkbox-item';
           item.innerHTML = `
-        
+						
 						<input type="checkbox" id="${block.name}" value="${block.range.join('-')}" ${isChecked(block.name)}>
-							<label for="${block.name}">${block.name}</label>
-      `;
+							<label for="${block.name}">${block.name}</label>`;
           item.querySelector('input').addEventListener('change', () => {
             saveSettings();
           });
-          container.appendChild(item);
+          checkcontainer.appendChild(item);
         });
       }).catch(error => {
         console.error('Error fetching Unicode blocks:', error);
       });
+      document.getElementById('copyResultCheckbox').addEventListener('change', () => {
+        saveSettings();
+      });
     });
+
+    function toggleSettings() {
+      const settingsContainer = document.getElementById('settings-container');
+      const checkboxContainer = document.getElementById('checkbox-container');
+      const settingsBtn = document.getElementById('settingsBtn');
+      if (settingsContainer.style.display === 'none') {
+        settingsContainer.style.display = 'flex';
+        checkboxContainer.style.display = 'none';
+        settingsBtn.textContent = 'Blocks';
+      } else {
+        settingsContainer.style.display = 'none';
+        checkboxContainer.style.display = 'flex';
+        settingsBtn.textContent = 'Settings';
+      }
+    }
+
+    function resetSettings() {
+      localStorage.removeItem('selectedBlocks');
+      localStorage.removeItem('copyResultChecked');
+      const checkboxes = document.querySelectorAll('input[type=checkbox]');
+      checkboxes.forEach(checkbox => {
+        checkbox.checked = false;
+        loadSettings();
+      });
+    }
 
     function saveSettings() {
       const copyResultCheckbox = document.getElementById('copyResultCheckbox');
@@ -235,36 +262,16 @@
       document.body.removeChild(tempInput);
     }
 
-    function toggleSettings() {
-      const settingsContainer = document.getElementById('settings-container');
-      const checkboxContainer = document.getElementById('checkbox-container');
-      const settingsBtn = document.getElementById('settingsBtn');
-      if (settingsContainer.style.display === 'none') {
-        settingsContainer.style.display = 'flex';
-        checkboxContainer.style.display = 'none';
-        settingsBtn.textContent = 'Hide Settings';
-      } else {
-        settingsContainer.style.display = 'none';
-        checkboxContainer.style.display = 'flex';
-        settingsBtn.textContent = 'Settings';
-      }
-    }
-
     function isChecked(name) {
       const selectedBlocks = JSON.parse(localStorage.getItem('selectedBlocks')) || [];
       return selectedBlocks.includes(name) ? 'checked' : '';
-    }
-
-    function resetSettings() {
-      localStorage.removeItem('selectedBlocks');
-      localStorage.removeItem('copyResultChecked');
-      loadSettings();
     }
 
     function selectAll() {
       const checkboxes = document.querySelectorAll('input[type=checkbox]');
       checkboxes.forEach(checkbox => {
         checkbox.checked = true;
+        saveSettings(); // Save changes to local storage
       });
     }
 
@@ -272,6 +279,7 @@
       const checkboxes = document.querySelectorAll('input[type=checkbox]');
       checkboxes.forEach(checkbox => {
         checkbox.checked = false;
+        saveSettings(); // Save changes to local storage
       });
     }
   </script>
